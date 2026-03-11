@@ -71,6 +71,67 @@ class Database:
 #  'The Global X Copper Miners UCITS ETF (COPX LN) provides investors access to a broad range of copper mining companies.')
 # ''')
 
+# # Insert category
+# Products.cur.execute('''
+# INSERT OR IGNORE INTO asset_categories (name)
+# VALUES ('Global Stocks')
+# ''')
+
+# # Insert issuer
+# Products.cur.execute('''
+# INSERT OR IGNORE INTO issuers (name)
+# VALUES ('Vanguard')
+# ''')
+
+# # Insert product
+# Products.cur.execute('''
+# INSERT OR IGNORE INTO products
+# (ticker, name, issuer_id, category_id, product_type, distribution_type, stock_count, ongoing_charge, description)
+# VALUES
+# ('VWRP',
+#  'Vanguard FTSE All-World UCITS ETF',
+#  3,
+#  2,
+#  'ETF',
+#  'Accumulating',
+#  3794,
+#  0.19,
+#  'Tracks the FTSE All-World Index providing exposure to global equities')
+# ''')
+
+# # Regional weightings
+# Products.cur.execute('''
+# INSERT INTO regional_weightings (product_id, region, percentage)
+# VALUES (4, 'US', 65.2)
+# ''')
+
+# Products.cur.execute('''
+# INSERT INTO regional_weightings (product_id, region, percentage)
+# VALUES (4, 'Europe', 14.6)
+# ''')
+
+# Products.cur.execute('''
+# INSERT INTO regional_weightings (product_id, region, percentage)
+# VALUES (4, 'Emerging Markets', 10.1)
+# ''')
+
+# Products.cur.execute('''
+# INSERT INTO regional_weightings (product_id, region, percentage)
+# VALUES (4, 'Pacific', 9.7)
+# ''')
+
+# Products.cur.execute('''
+# INSERT INTO regional_weightings (product_id, region, percentage)
+# VALUES (4, 'Middle East', 3.0)
+# ''')
+
+# Products.cur.execute('''
+# INSERT INTO regional_weightings (product_id, region, percentage)
+# VALUES (4, 'Other', 2.0)
+# ''')
+
+# Products.disconnect()
+
 # # Save changes
 # Products.disconnect()
 

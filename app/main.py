@@ -25,10 +25,14 @@ def search_database(product_name: str) -> str:
     if asset_category_id is None:
         return "NO_PRODUCTS_FOUND"
     else:
-        result = db.cur.execute('''SELECT name, ticker, description FROM products WHERE category_id == ?''', (asset_category_id[0],)).fetchall()
+        products = db.cur.execute('''SELECT id, name, ticker, product_type, replication_type, distribution_type, description FROM products WHERE category_id == ?''', (asset_category_id[0],)).fetchall()
+        result = ""
+        for i, (id, name, ticker, product_type, replication_type, distribution_type, description) in enumerate(products, start=1):
+            result += f"{i}. {name}\n   Ticker: {ticker}\n   Description: {description}\n  Product Type: {product_type}\n   Replication Type: {replication_type}\n   Distribution Type: {distribution_type}\n"
+            for i, (region, percentage) in enumerate(db.cur.execute('''SELECT region, percentage FROM regional_weightings WHERE product_id == ?''', (id,)).fetchall(), start=1):
+                result += f"   Weighting {i}: {region} - {percentage}%\n"
         db.disconnect()
-        for i, (name, ticker, description) in enumerate(result, start=1):
-            print(f"{i}. {name}\n   Ticker: {ticker}\n   Description: {description}\n")
+        print(result)
         return result
 
 async def main():
@@ -74,35 +78,55 @@ Only perform the database search once the user confirms the theme.
    After confirmation, search the database using the asset category or thematic name.
 
 The database search should:
-• Identify the asset_category_id associated with the theme.
-• Retrieve all products linked to that asset_category_id.
+• Identify the `asset_category_id` associated with the theme.
+• Retrieve all products linked to that `asset_category_id`.
 
-4. Present Matching Products
-   When products are found, return all matching products in a clear and client-friendly format.
+4. Present Matching Products in a Client-Friendly Way
 
-For each product include:
+When products are found, present them in a clear and natural format that is easy for clients to understand.
+
+The database may return the following fields for each product:
+
 • Product Name
 • Ticker Symbol
-• Short Description
+• Product Description
+• Product Type
+• Replication Type
+• Distribution Type
+• Portfolio Weightings
 
-Do not simply repeat the raw database output.
-Instead, rewrite the information in clear natural language while keeping all factual information unchanged.
+Do NOT present this information as a rigid list of database fields.
 
-Present the results in an easy-to-read structure.
+Instead:
+
+• Integrate the product type, replication type, distribution type, and description into a natural written explanation of the product.
+• Write the explanation in your own words while keeping all factual information unchanged.
+• Maintain the exact product name and ticker symbol exactly as returned by the database.
+• Do not alter or reinterpret technical values such as replication type or distribution type.
+
+The goal is to produce a concise but informative product summary that reads naturally to a client.
+
+Regional or portfolio weightings are the exception and should be presented separately beneath the description for clarity.
 
 Example response format:
 
 Here are some products that provide exposure to Global Stocks:
 
-1. **Vanguard FTSE All-World UCITS ETF** (Ticker: VWRP)
-   This ETF tracks the FTSE All-World Index, giving investors exposure to both developed and emerging market equities across the world.
+1. **Vanguard FTSE All-World UCITS ETF (Ticker: VWRP)**
+   This is a UCITS exchange-traded fund designed to track the FTSE All-World Index, giving investors exposure to thousands of companies across both developed and emerging markets. The fund uses physical replication to track the index and follows an accumulating distribution structure, meaning dividends are reinvested into the fund rather than paid out to investors.
 
-2. **iShares MSCI ACWI ETF** (Ticker: ACWI)
-   This product provides broad exposure to global equity markets across developed and emerging economies.
+   **Regional Weightings:**
+   • United States: 65.2%
+   • Europe: 14.6%
+   • Emerging Markets: 10.1%
+   • Pacific: 9.7%
 
-Ensure that:
-• Product names and tickers remain exactly the same as in the database.
-• Descriptions are explained clearly but the meaning and information remain unchanged.
+Important formatting guidelines:
+
+• The explanation of the product should feel natural and informative rather than mechanical.
+• Avoid repeating field names such as "Product Type:" or "Replication Type:" unless necessary for clarity.
+• Integrate those attributes naturally into the description.
+• Weightings should always appear as a clearly separated section below the description.
 
 5. Handling Missing Themes
    If the theme does not exist in the database, inform the user politely.
@@ -116,7 +140,7 @@ Do not invent products or asset categories.
    • Focus on identifying the investment theme rather than individual product names.
    • Ask concise clarifying questions when necessary.
    • Confirm the theme before querying the database.
-   • When presenting results, prioritise clarity and readability for the client.
+   • When presenting results, prioritise clarity, readability, and a natural explanation suitable for a client.
 
 7. Tool Usage Rules
    You may have access to a database search tool.
@@ -130,12 +154,12 @@ When calling the tool:
 8. Accuracy and Safety
    • Only present products returned from the database.
    • Never fabricate financial products or descriptions.
+   • Never alter weighting percentages returned from the database.
    • If no products are returned, inform the user that none were found.
 
-Your primary responsibility is to help users discover financial products that match a specific investment theme and present the results in a clear and understandable way.
+Your primary responsibility is to help users discover financial products that match a specific investment theme and present the results in a clear, natural, and client-friendly way.
 
-"""
-    )
+""")
 
     conversation = []
 
