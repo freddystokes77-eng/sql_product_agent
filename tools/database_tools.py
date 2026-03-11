@@ -1,13 +1,5 @@
-from sql_database import Database
-from prompts.product_agent_prompt import PRODUCT_AGENT_PROMPT
-from openai import OpenAI
-from dotenv import load_dotenv
-from agents import Agent, Runner, FunctionTool, function_tool
-import asyncio
-
-load_dotenv()  # Load environment variables from .env file
-
-client = OpenAI()
+from agents import function_tool
+from database.sql_database import Database
 
 # Function tool to search the database for products matching a given theme or asset category
 # and return the info on those products as a string
@@ -35,40 +27,4 @@ def search_database(product_name: str) -> str:
             for i, (region, percentage) in enumerate(db.cur.execute('''SELECT region, percentage FROM regional_weightings WHERE product_id == ?''', (id,)).fetchall(), start=1):
                 result += f"   Weighting {i}: {region} - {percentage}%\n"
         db.disconnect()
-        print(result)
         return result
-
-# Function to run the agent in a loop, taking user input and generating responses until the user exits
-async def main():
-
-    agent = Agent(
-        name="Product Assistant",
-        tools=[search_database],
-        instructions=PRODUCT_AGENT_PROMPT)
-
-    conversation = []
-
-    while True:
-        user_input = input("You: ")
-
-        if user_input.lower() in ["exit", "quit"]:
-            break
-
-        conversation.append({
-            "role": "user",
-            "content": user_input
-        })
-
-        result = await Runner.run(agent, conversation)
-
-        response = result.final_output
-
-        print("Assistant:", response)
-
-        conversation.append({
-            "role": "assistant",
-            "content": response
-        })
-
-asyncio.run(main())
-
