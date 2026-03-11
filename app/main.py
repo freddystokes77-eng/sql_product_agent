@@ -1,8 +1,6 @@
 from sql_database import Database
-import sqlite3
 from openai import OpenAI
 from dotenv import load_dotenv
-import os
 from agents import Agent, Runner, FunctionTool, function_tool
 import asyncio
 
@@ -12,11 +10,11 @@ client = OpenAI()
 
 @function_tool
 def search_database(product_name: str) -> str:
-
+    
     print("Searching database for:", product_name)
-
+    
     db = Database("products.db")
-
+    
     result = db.cur.execute(
         "SELECT ticker, name, product_type, replication_type, distribution_type, stock_count, ongoing_charge, description FROM products WHERE name = ?",
         (product_name,)
