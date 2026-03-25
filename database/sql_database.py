@@ -9,6 +9,7 @@ class Database:
         self.conn.commit()
         self.conn.close()
 
+# # add soft delete functionality to products table
 
 # Products = Database('products.db')
 
